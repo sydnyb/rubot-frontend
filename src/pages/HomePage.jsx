@@ -45,3 +45,58 @@ const HomePage = () => {
 
       recognition.onerror = (err) => {
         console.error("Speech Recognition error", err);
+        alert("Microphone access failed.");
+      };
+    } catch (e) {
+      console.error("Error in voice processing", e);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white p-6">
+      <h1 className="text-4xl font-bold mb-4">👋 Welcome to RuBot</h1>
+      <p className="mb-6 text-gray-300">Choose your AI companion to start chatting.</p>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+        {personas.map((persona, index) => (
+          <motion.div
+            key={index}
+            whileHover={{ scale: 1.05 }}
+            onClick={() => setActivePersona(persona)}
+          >
+            <Card className={`border ${activePersona?.name === persona.name ? 'border-blue-500' : 'border-gray-700'} rounded-2xl shadow-md cursor-pointer`}>
+              <CardContent>
+                <video
+                  src={persona.video}
+                  className="rounded-xl w-full"
+                  autoPlay
+                  muted
+                  loop
+                />
+                <p className="text-center mt-2">{persona.name}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="flex gap-4 mb-4">
+        <Button onClick={handleTalk}>
+          <Mic className="inline-block mr-2" />
+          Talk to RuBot
+        </Button>
+        <Button><User /></Button>
+        <Button><Languages /></Button>
+        <Button><BookOpen /></Button>
+        <Button><Settings /></Button>
+      </div>
+
+      <div className="mt-6 bg-gray-800 p-4 rounded-xl">
+        <p><strong>You:</strong> {transcript || "Say something..."}</p>
+        <p className="mt-2"><strong>RuBot:</strong> {reply || "I'll respond here!"}</p>
+      </div>
+    </div>
+  );
+};
+
+export default HomePage;
