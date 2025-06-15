@@ -4,47 +4,44 @@ import { Button } from "../components/ui/button";
 import { Mic, User, Languages, BookOpen, Settings } from "lucide-react";
 import { motion } from "framer-motion";
 
-function HomePage() {
-  const personas = [
-    { name: "The Desert Sage", video: "desert_sage.mp4" },
-    { name: "Einstein AI", video: "einstein.mp4" },
-    { name: "Jim AIrry", video: "jim.mp4" },
-    { name: "GandhiGPT", video: "gandhi.mp4" },
-    { name: "Dr. King", video: "king.mp4" },
-    { name: "Virat Mentor", video: "virat.mp4" },
-  ];
+// Persona list
+const personas = [
+  { name: "Desert Sage", video: "/avatars/desert_sage.mp4" },
+  { name: "Einstein AI", video: "/avatars/einstein.mp4" },
+  { name: "Jim AIrry", video: "/avatars/jim.mp4" },
+  { name: "GandhiGPT", video: "/avatars/gandhi.mp4" },
+  { name: "Dr. King", video: "/avatars/king.mp4" },
+  { name: "Virat Mentor", video: "/avatars/virat.mp4" },
+];
 
+const HomePage = () => {
   const [activePersona, setActivePersona] = useState(personas[0]);
+  const [transcript, setTranscript] = useState("");
+  const [reply, setReply] = useState("");
 
-  return (
-    <div className="min-h-screen bg-black text-white p-6 space-y-6">
-      <h1 className="text-3xl font-bold text-center mb-4">Talk to RuBot</h1>
-      <div className="flex flex-wrap justify-center gap-4">
-        {personas.map((persona, idx) => (
-          <motion.div
-            key={idx}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setActivePersona(persona)}
-          >
-            <Card className={`bg-gray-800 border ${activePersona?.name === persona.name ? 'border-blue-500' : 'border-gray-700'} rounded-2xl shadow-md cursor-pointer`}>
-              <CardContent className="flex flex-col items-center">
-                <video src={`/avatars/${persona.video}`} className="h-40 rounded-xl mb-2" autoPlay loop muted />
-                <p>{persona.name}</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
-      <div className="flex justify-center gap-4 mt-8">
-        <Button><Mic size={20} /></Button>
-        <Button><User size={20} /></Button>
-        <Button><Languages size={20} /></Button>
-        <Button><BookOpen size={20} /></Button>
-        <Button><Settings size={20} /></Button>
-      </div>
-    </div>
-  );
-}
+  const handleTalk = () => {
+    try {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("Speech Recognition not supported in this browser.");
+        return;
+      }
 
-export default HomePage;
+      const recognition = new SpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.start();
+
+      recognition.onresult = (event) => {
+        const speechText = event.results[0][0].transcript;
+        setTranscript(speechText);
+
+        // Mock response from RuBot
+        const response = `You said: "${speechText}". I am ${activePersona.name}, your AI companion.`;
+        setReply(response);
+
+        const utterance = new SpeechSynthesisUtterance(response);
+        speechSynthesis.speak(utterance);
+      };
+
+      recognition.onerror = (err) => {
+        console.error("Speech Recognition error", err);
